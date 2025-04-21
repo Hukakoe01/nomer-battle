@@ -1,37 +1,23 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Cell : MonoBehaviour
 {
     public GameObject BuildButton; // Сюда перетаскиваем кнопку
+    public Image ImgOnIsland; // Убедитесь, что это компонент Image
 
     private int placedBuildingId = -1; // Можно использовать потом
 
+    public int x; // Координаты клетки на островке
+    public int y;
+
     public void EnableBuildButton()
     {
-        try
-        {
-            if (BuildButton != null)
-            {
-                BuildButton.SetActive(true);
-                Debug.Log("Кнопка активирована: " + BuildButton.name);
-            }
-            else
-            {
-                throw new System.NullReferenceException("Кнопка не привязана!");
-            }
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"Ошибка: {e.Message} на объекте {gameObject.name}. Удаляем весь остров.");
-
-            // Удаляем саму клетку
-            Destroy(gameObject);
-        }
+        BuildButton.SetActive(true);
+        Debug.Log("Кнопка активирована: " + BuildButton.name);
     }
-
-
 
     public void BuildSelected()
     {
@@ -39,19 +25,43 @@ public class Cell : MonoBehaviour
 
         if (selectedId != -1)
         {
-            Debug.Log("Строим здание с ID: " + selectedId + " на клетке " + gameObject.name);
-            placedBuildingId = selectedId;
+            // Найдем здание по ID
+            BuildingData selectedBuilding = GameManager.allBuildings.Find(building => building.id == selectedId);
 
-            // Здесь можно поставить картинку, модель и т.д.
-            BuildButton.SetActive(false); // спрятать кнопку после постройки
+            if (selectedBuilding != null)
+            {
+                Debug.Log("Строим здание с ID: " + selectedId + " на клетке " + gameObject.name);
+
+                placedBuildingId = selectedBuilding.id;
+
+
+                // Проверяем, что изображение существует
+                if (selectedBuilding.icon != null)
+                {
+                    ImgOnIsland.sprite = selectedBuilding.icon;
+                }
+                else
+                {
+                    Debug.LogError("Не удалось найти изображение для здания с ID: " + selectedId);
+                }
+
+                BuildButton.SetActive(false); // Скрываем кнопку после постройки
+            }
+            else
+            {
+                Debug.LogError("Не удалось найти здание с ID: " + selectedId);
+            }
+        }
+        else
+        {
+            Debug.LogError("Выбран некорректный ID здания: " + selectedId);
         }
     }
+
+
+
     public void DisableBuildButton()
     {
-        if (BuildButton != null)
-        {
-            BuildButton.SetActive(false);
-        }
+        BuildButton.SetActive(false);
     }
-
 }

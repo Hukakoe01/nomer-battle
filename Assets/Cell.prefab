@@ -36,8 +36,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.000011027, y: 0.0000096932}
-  m_SizeDelta: {x: 80, y: 80}
+  m_AnchoredPosition: {x: -0.9766, y: -4.7201}
+  m_SizeDelta: {x: 66.0025, y: 55.5857}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4770177234951032479
 CanvasRenderer:
@@ -278,6 +278,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BuildButton: {fileID: 6071825526365386906}
+  ImgOnIsland: {fileID: 1612719728084377515}
 --- !u!1 &7290458092900116543
 GameObject:
   m_ObjectHideFlags: 0
@@ -338,7 +339,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:

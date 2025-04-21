@@ -9,8 +9,6 @@ using UnityEngine.UI;
 public class BuildingCard : MonoBehaviour
 {
 
-    
-
     // Start is called before the first frame update
     void Start()
 
@@ -35,39 +33,59 @@ public class BuildingCard : MonoBehaviour
     public void SetCard(int idn, Sprite icon, string name, string description, int price)
     {
         this.id = idn;
-        iconImage.sprite = icon;
-        nameText.text = name;
-        descriptionText.text = description;
-        priceText.text = price + " золота";
+
+        // Присваиваем значения
+        if (iconImage != null)
+            iconImage.sprite = icon;
+        else
+            Debug.LogError("iconImage не привязан в инспекторе!");
+
+        if (nameText != null)
+            nameText.text = name;
+        else
+            Debug.LogError("nameText не привязан в инспекторе!");
+
+        if (descriptionText != null)
+            descriptionText.text = description;
+        else
+            Debug.LogError("descriptionText не привязан в инспекторе!");
+
+        if (priceText != null)
+            priceText.text = price + " золота";
+        else
+            Debug.LogError("priceText не привязан в инспекторе!");
     }
+
+
     public void OnClick()
     {
         if (sch == false)
         {
-            // Загружаем и устанавливаем курсор
+            Debug.Log("Выбрана карточка с ID: " + id);  // Проверим, что ID правильный
+            GameManager.selectedCardId = id; // Присваиваем выбранный ID
             Texture2D texture = iconImage.sprite.texture;
             Cursor.SetCursor(texture, Vector2.zero, CursorMode.Auto);
             Cell[] cells = GameObject.FindObjectsOfType<Cell>();
-            GameManager.selectedCardId = id;
             foreach (Cell cell in cells)
             {
-                cell.EnableBuildButton(); // Мы явно вызываем метод у каждой клетки
+                cell.EnableBuildButton();
             }
             sch = true;
         }
         else
         {
             Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
-
             // Отключаем кнопки на всех клетках
             Cell[] cells = GameObject.FindObjectsOfType<Cell>();
             foreach (Cell cell in cells)
             {
-                cell.DisableBuildButton(); // метод ниже, добавим его в Cell.cs
+                cell.DisableBuildButton();
             }
-
             sch = false;
         }
     }
+
+
+
 
 }

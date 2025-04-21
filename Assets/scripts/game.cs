@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI; // Для UI-компонентов
-using Mono.Data.Sqlite;
-using System.Data;
 using System.IO;
 
 public class game : MonoBehaviour
@@ -18,37 +16,34 @@ public class game : MonoBehaviour
     public GameObject[,] islandGrid; // Сами острова
     public string[,] islandData;     // Названия зданий на них (или ID)
 
-
-    public string fileName = "data.db";
-    private string dbPath;
-
-    public GameObject card; 
+    public GameObject card;
     public Transform contentParent;
 
     public GameObject Button_tower;
     public GameObject Button_gun;
+    public GameObject Button_shoot;
 
+    private shoot scriptShoot;
+
+    
 
     private void Start()
-    {
+    {GameManager gm = FindObjectOfType<GameManager>();
         islandGrid = new GameObject[gridSize, gridSize];
         islandData = new string[gridSize, gridSize];
 
         GenerateBoard();
-        string filePath = Path.Combine(Application.persistentDataPath, fileName);
-        dbPath = "URI=file:" + filePath;
-        Button_tower_click();
+        Button_tower_click();  // Загружаем карточки типа "tower"
     }
 
     void GenerateBoard()
     {
-
         float offsetX = (-gridSize * cellSize) / 2;
         float offsetY = (-gridSize * cellSize) / 2;
 
-        for (int x = 0; x < gridSize; x++)
+        for (int y = gridSize - 1; y >= 0; y--) // Начинаем с нижней строки
         {
-            for (int y = 0; y < gridSize; y++)
+            for (int x = 0; x < gridSize; x++) // Слева направо
             {
                 Vector3 position = new Vector3(x * cellSize + offsetX, y * cellSize + offsetY, 0);
 
@@ -58,8 +53,6 @@ public class game : MonoBehaviour
 
                 islandGrid[x, y] = Cell;
                 islandData[x, y] = "";
-
-
                 RectTransform rectTransform = Cell.GetComponent<RectTransform>();
                 if (rectTransform != null)
                 {
@@ -69,7 +62,8 @@ public class game : MonoBehaviour
         }
     }
 
-    public void Button_tower_click() 
+
+    public void Button_tower_click()
     {
         load_cards("tower");
     }
@@ -77,9 +71,18 @@ public class game : MonoBehaviour
     {
         load_cards("gun");
     }
+    public void Button_shoot_click()
+    {
+
+        scriptShoot = FindObjectOfType<shoot>();
+        scriptShoot.shootLogick();
+    }
 
     void load_cards(string types)
     {
+        // Получаем все карточки из GameManager
+        List<BuildingData> buildings = GameManager.Instance.GetBuildingsByType(types);
+
         // Находим все объекты карточек, например, по тегу или вручную
         GameObject[] cards = new GameObject[5];
         cards[0] = GameObject.Find("card");
@@ -88,49 +91,28 @@ public class game : MonoBehaviour
         cards[3] = GameObject.Find("card(3)");
         cards[4] = GameObject.Find("card(4)");
 
-        using (var conn = new SqliteConnection(dbPath))
+        // Заполняем карточки данными из GameManager
+        for (int i = 0; i < cards.Length && i < buildings.Count; i++)
         {
-            conn.Open();
-            using (var cmd = conn.CreateCommand())
+            BuildingData building = buildings[i];
+            GameObject cardObj = cards[i];
+
+            if (cardObj != null)
             {
-                cmd.CommandText = $"SELECT id, name, about, price, image, type FROM towers where type = '{types}'";
-                using (IDataReader reader = cmd.ExecuteReader())
+                var cardComponent = cardObj.GetComponent<BuildingCard>();
+                if (cardComponent != null)
                 {
-                    int index = 0;
-                    while (reader.Read() && index < cards.Length)
-                    {
-                        int id = reader.GetInt32(0);
-                        string name = reader.GetString(1);
-                        string description = reader.GetString(2);
-                        int price = reader.GetInt32(3);
-                        string iconName = reader.GetString(4);
-                        string type = reader.GetString(5);
-
-                        
-
-                        Sprite icon = Resources.Load<Sprite>("photo/" + iconName);
-
-                        GameObject cardObj = cards[index];
-                        if (cardObj != null)
-                        {
-                            var cardt = cardObj.GetComponent<BuildingCard>();
-                            if (cardt != null)
-                            {
-                                cardt.SetCard(id, icon, name, description, price);
-                            }
-                            else
-                            {
-                                Debug.LogError("На карточке отсутствует компонент BuildingCard!");
-                            }
-                        }
-                        else
-                        {
-                            Debug.LogError("Карточка с индексом " + index + " не найдена!");
-                        }
-
-                        index++;
-                    }
+                    // Устанавливаем данные карточки
+                    cardComponent.SetCard(building.id, building.icon, building.name, building.description, building.price);
                 }
+                else
+                {
+                    Debug.LogError("На карточке отсутствует компонент BuildingCard!");
+                }
+            }
+            else
+            {
+                Debug.LogError("Карточка с индексом " + i + " не найдена!");
             }
         }
     }

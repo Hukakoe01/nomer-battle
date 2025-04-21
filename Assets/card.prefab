@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 6054821609311249201}
   - component: {fileID: 4589279504363997250}
   - component: {fileID: 1947203964853946320}
-  - component: {fileID: 6703505560053756261}
   m_Layer: 5
   m_Name: card
   m_TagString: Untagged
@@ -41,7 +40,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -745.78, y: 195.57}
+  m_AnchoredPosition: {x: -745.78, y: 195}
   m_SizeDelta: {x: 428.45, y: 88.96}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &4589279504363997250
@@ -80,7 +79,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -105,18 +104,6 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &6703505560053756261
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2784274859765499878}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c4a9d4539017bf44985e62056932c37d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &2819035631716556487
 GameObject:
   m_ObjectHideFlags: 0
@@ -446,7 +433,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.6745283, g: 0.6745283, b: 0.6745283, a: 1}
+  m_Color: {r: 0.17550729, g: 0.6234482, b: 0.6415094, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -489,7 +476,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6054821609461788636}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -498,7 +485,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -131.21, y: 0.000005722}
+  m_AnchoredPosition: {x: -131.21, y: 0}
   m_SizeDelta: {x: 100, y: 88.96}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6054821609461788625
