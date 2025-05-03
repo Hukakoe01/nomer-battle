@@ -10,4 +10,5 @@ public class BuildingData
     public string imageName;
     public string type;
     public Sprite icon;
+    public int chek;//0 смотреть один раз, 1 надо смотреть каждый раз 
 }

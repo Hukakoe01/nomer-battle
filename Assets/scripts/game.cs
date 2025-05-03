@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI; // Для UI-компонентов
 using System.IO;
+using TMPro;
 
 public class game : MonoBehaviour
 {
@@ -22,10 +23,10 @@ public class game : MonoBehaviour
     public GameObject Button_tower;
     public GameObject Button_gun;
     public GameObject Button_shoot;
+    public GameObject TText;
+
 
     private shoot scriptShoot;
-
-    
 
     private void Start()
     {GameManager gm = FindObjectOfType<GameManager>();
@@ -33,19 +34,22 @@ public class game : MonoBehaviour
         islandData = new string[gridSize, gridSize];
 
         GenerateBoard();
-        Button_tower_click();  // Загружаем карточки типа "tower"
+        Button_tower_click();
+        GameManager.kolvo_gun = 0;
     }
 
     void GenerateBoard()
     {
+        // Смещение по X и Y для центрирования поля
         float offsetX = (-gridSize * cellSize) / 2;
-        float offsetY = (-gridSize * cellSize) / 2;
+        float offsetY = (gridSize * cellSize) / 2;  // Сдвигаем на половину вниз, чтобы (0,0) был сверху слева
 
-        for (int y = gridSize - 1; y >= 0; y--) // Начинаем с нижней строки
+        for (int y = 0; y < gridSize; y++)  // Идем по строкам сверху вниз
         {
-            for (int x = 0; x < gridSize; x++) // Слева направо
+            for (int x = 0; x < gridSize; x++)  // Идем по колонкам слева направо
             {
-                Vector3 position = new Vector3(x * cellSize + offsetX, y * cellSize + offsetY, 0);
+                // Ранее смещение по Y было инвертировано, теперь мы просто ставим клетки снизу вверх, как нужно
+                Vector3 position = new Vector3(x * cellSize + offsetX, offsetY - y * cellSize, 0);
 
                 GameObject Cell = Instantiate(cellPrefab);
                 Cell.transform.SetParent(canvas.transform, false); // Делаем клетку дочерним объектом Canvas
@@ -53,6 +57,11 @@ public class game : MonoBehaviour
 
                 islandGrid[x, y] = Cell;
                 islandData[x, y] = "";
+
+                // Передаем координаты клетки в саму клетку
+                Cell.GetComponent<Cell>().x = x;
+                Cell.GetComponent<Cell>().y = y;
+
                 RectTransform rectTransform = Cell.GetComponent<RectTransform>();
                 if (rectTransform != null)
                 {

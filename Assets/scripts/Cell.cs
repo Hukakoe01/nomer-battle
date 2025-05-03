@@ -30,10 +30,12 @@ public class Cell : MonoBehaviour
 
             if (selectedBuilding != null)
             {
-                Debug.Log("Строим здание с ID: " + selectedId + " на клетке " + gameObject.name);
+                Debug.Log("Строим здание с ID: " + selectedId + " на клетке (" + x + ", " + y + ")");
+
 
                 placedBuildingId = selectedBuilding.id;
 
+                GameManager.Instance.islands[x, y].Add(new int[] { selectedBuilding.id, 0 });
 
                 // Проверяем, что изображение существует
                 if (selectedBuilding.icon != null)
@@ -47,14 +49,6 @@ public class Cell : MonoBehaviour
 
                 BuildButton.SetActive(false); // Скрываем кнопку после постройки
             }
-            else
-            {
-                Debug.LogError("Не удалось найти здание с ID: " + selectedId);
-            }
-        }
-        else
-        {
-            Debug.LogError("Выбран некорректный ID здания: " + selectedId);
         }
     }
 

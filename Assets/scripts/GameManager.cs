@@ -9,10 +9,16 @@ using System.IO;
 
 public class GameManager : MonoBehaviour  // Наследуем от MonoBehaviour
 {
+    public List<int[]>[,] islands;
+    public int gridSize = 10;
+    public int hp_enemy;
+
     public static GameManager Instance;
     public static int selectedCardId = -1; // -1 = ничего не выбрано
 
     public static List<BuildingData> allBuildings = new List<BuildingData>();
+    public static int kolvo_gun;
+    public static int max_gun;
 
     private void Awake()
     {
@@ -24,6 +30,14 @@ public class GameManager : MonoBehaviour  // Наследуем от MonoBehaviour
         else
         {
             Destroy(gameObject);
+        }
+        islands = new List<int[]>[gridSize, gridSize];
+        for (int x = 0; x < gridSize; x++)
+        {
+            for (int y = 0; y < gridSize; y++)
+            {
+                islands[x, y] = new List<int[]>();
+            }
         }
     }
 
@@ -76,4 +90,8 @@ public class GameManager : MonoBehaviour  // Наследуем от MonoBehaviour
                 Debug.Log($"Building ID: {building.id}, Name: {building.name}, Price: {building.price}, Type: {building.type}");
             }
         }
+    public BuildingData GetBuildingById(int id)
+    {
+        return allBuildings.Find(building => building.id == id);
+    }
 }

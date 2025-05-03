@@ -84,8 +84,4 @@ public class BuildingCard : MonoBehaviour
             sch = false;
         }
     }
-
-
-
-
 }
