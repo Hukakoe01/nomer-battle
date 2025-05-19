@@ -23,7 +23,7 @@ public class game : MonoBehaviour
     public GameObject Button_tower;
     public GameObject Button_gun;
     public GameObject Button_shoot;
-    public GameObject TText;
+
 
 
     private shoot scriptShoot;
@@ -36,10 +36,13 @@ public class game : MonoBehaviour
         GenerateBoard();
         Button_tower_click();
         GameManager.kolvo_gun = 0;
+        GameManager.Instance.InitEnemies();
+        GameManager.Instance.SpawnEnemy(0);
     }
 
     void GenerateBoard()
     {
+        GameManager.Instance.cellObjects = new GameObject[gridSize, gridSize];
         // Смещение по X и Y для центрирования поля
         float offsetX = (-gridSize * cellSize) / 2;
         float offsetY = (gridSize * cellSize) / 2;  // Сдвигаем на половину вниз, чтобы (0,0) был сверху слева
@@ -61,6 +64,8 @@ public class game : MonoBehaviour
                 // Передаем координаты клетки в саму клетку
                 Cell.GetComponent<Cell>().x = x;
                 Cell.GetComponent<Cell>().y = y;
+
+                GameManager.Instance.cellObjects[x, y] = Cell;
 
                 RectTransform rectTransform = Cell.GetComponent<RectTransform>();
                 if (rectTransform != null)
@@ -125,4 +130,5 @@ public class game : MonoBehaviour
             }
         }
     }
+
 }

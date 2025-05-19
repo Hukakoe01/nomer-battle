@@ -84,4 +84,23 @@ public class BuildingCard : MonoBehaviour
             sch = false;
         }
     }
+    public void ClearCard()
+    {
+        id = -1;
+
+        if (iconImage != null)
+            iconImage.sprite = null;
+
+        if (nameText != null)
+            nameText.text = "";
+
+        if (descriptionText != null)
+            descriptionText.text = "";
+
+        if (priceText != null)
+            priceText.text = "";
+
+        sch = false;
+    }
+
 }

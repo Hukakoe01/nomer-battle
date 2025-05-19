@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System.Data;
+using Mono.Data.Sqlite;
+using System.IO;
 
 public class main_menu : MonoBehaviour
 {
@@ -11,9 +14,11 @@ public class main_menu : MonoBehaviour
     public GameObject Button2;
     public GameObject Button_exite;
 
+    private string dbPath;
+
     public void buton_play()
     {
-        SceneManager.LoadScene(1);
+        SceneManager.LoadScene(3);
     }
     public void buton_setting()
     {
@@ -31,6 +36,9 @@ public class main_menu : MonoBehaviour
     void Start()
     {
         Debug.Log("Persistent Data Path: " + Application.persistentDataPath);
+        string fileName = "data.db";
+        string filePath = Path.Combine(Application.persistentDataPath, fileName);
+        dbPath = "URI=file:" + filePath;
     }
     public void button_exit()
     {
