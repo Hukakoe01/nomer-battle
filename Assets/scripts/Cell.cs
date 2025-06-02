@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class Cell : MonoBehaviour
 {
@@ -144,6 +145,153 @@ public class Cell : MonoBehaviour
         }
     }
 
+    void OnMouseUpAsButton()
+    {
+        if (GameManager.Instance.isRemovingMode)
+        {
+            RemoveBuilding();
+            return;
+        }
+    }
+
+    public void RemoveBuilding()
+    {
+        List<int[]> buildings = GameManager.Instance.islands[x, y];
+
+        if (buildings == null || buildings.Count == 0)
+        {
+            GameManager.Instance.ShowMessage("На этой клетке нет построек");
+            return;
+        }
+
+        // Удаляем пушку из gunArray, если она есть
+        GunInstance toRemove = null;
+        foreach (GunInstance gun in GameManager.Instance.gunArray)
+        {
+            if (gun.position == new Vector2Int(x, y))
+            {
+                toRemove = gun;
+                break;
+            }
+        }
+
+        if (toRemove != null)
+        {
+            GameManager.Instance.gunArray.Remove(toRemove);
+            GameManager.Instance.ShowMessage("Пушка удалена");
+        }
+        else
+        {
+            GameManager.Instance.ShowMessage("Здание удалено");
+        }
+
+        // Вернуть золото (по желанию)
+        foreach (var data in buildings)
+        {
+            int bId = data[0];
+            BuildingData bd = GameManager.Instance.GetBuildingById(bId);
+            if (bd != null)
+            {
+                GameManager.Instance.AddGold(bd.price / 2); // вернуть 50% стоимости
+            }
+        }
+
+        // Очистить клетку
+        buildings.Clear();
+
+        // Убрать спрайт на клетке
+        if (ImgOnIsland != null)
+        {
+            ImgOnIsland.sprite = null;
+        }
+
+        // Сброс режима удаления
+        GameManager.Instance.isRemovingMode = false;
+    }
+
+    public void EnableRemoveButton()
+    {
+        // Включаем кнопку
+        if (BuildButton != null)
+        {
+            BuildButton.SetActive(true);
+
+            // Удаляем старые действия
+            Button btn = BuildButton.GetComponent<Button>();
+            if (btn != null)
+            {
+                btn.onClick.RemoveAllListeners(); // удаляем всё, что было
+                btn.onClick.AddListener(RemoveBuildingFromButton); // добавляем удаление
+            }
+            else
+            {
+                Debug.LogWarning("На кнопке нет компонента Button");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("BuildButton не назначен в Cell!");
+        }
+    }
+
+    public void RemoveBuildingFromButton()
+    {
+        List<int[]> buildings = GameManager.Instance.islands[x, y];
+
+        if (buildings == null || buildings.Count == 0)
+        {
+            GameManager.Instance.ShowMessage("На этой клетке ничего нет");
+            return;
+        }
+
+        // Удалим пушку из gunArray, если она есть
+        GunInstance toRemoveGun = null;
+        foreach (var gun in GameManager.Instance.gunArray)
+        {
+            if (gun.position == new Vector2Int(x, y))
+            {
+                toRemoveGun = gun;
+                break;
+            }
+        }
+
+        if (toRemoveGun != null)
+        {
+            GameManager.Instance.gunArray.Remove(toRemoveGun);
+            Debug.Log("Пушка удалена");
+        }
+        else
+        {
+            Debug.Log("Здание удалено");
+        }
+
+        // Вернуть часть стоимости (опционально)
+        foreach (var data in buildings)
+        {
+            BuildingData bd = GameManager.Instance.GetBuildingById(data[0]);
+            if (bd != null)
+            {
+                GameManager.Instance.AddGold(bd.price / 2);
+            }
+        }
+
+        // Очищаем список построек
+        buildings.Clear();
+
+        // Меняем спрайт на sky.png
+        Sprite skySprite = Resources.Load<Sprite>("sky");
+        if (ImgOnIsland != null)
+            ImgOnIsland.sprite = skySprite;
+
+        // Скрываем кнопку на этой клетке
+        if (BuildButton != null)
+            BuildButton.SetActive(false);
+
+        GameManager.Instance.ShowMessage("Постройка удалена");
+
+        // Выключаем режим удаления (если нужно только один раз)
+        GameManager.Instance.CancelRemoveMode();
+    }
 
     public void HideButton()
     {
@@ -159,7 +307,10 @@ public class Cell : MonoBehaviour
         }
     }
 
-
+    public void OnDeleteButtonClicked()
+    {
+        GameManager.Instance.StartRemoveMode();
+    }
 
 
     public void DisableBuildButton()

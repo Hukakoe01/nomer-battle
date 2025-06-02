@@ -12,6 +12,15 @@ EditorBuildSettings:
     path: Assets/Scenes/select_profile.unity
     guid: 9c4231bed39cc0c4e975c5a06dea1317
   - enabled: 1
+    path: Assets/Scenes/selectmode.unity
+    guid: 14f3acd9ff299fb439f84fa062c20047
+  - enabled: 1
     path: Assets/Scenes/TutorialScene.unity
     guid: 6a2e790f77afdc0428eb06e2564ebd6e
+  - enabled: 1
+    path: Assets/Scenes/MultiplayerGameScene.unity
+    guid: 11b821f3a5aab0e4bb02c7432dc8851b
+  - enabled: 1
+    path: Assets/Scenes/MultiplayerLobbyScene.unity
+    guid: 1f170975e25bdc644bf6f0dc3e526564
   m_configObjects: {}

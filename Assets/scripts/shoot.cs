@@ -5,42 +5,6 @@ using TMPro;
 
 public class shoot : MonoBehaviour
 {
-    void Start()
-    {
-        
-    }
-
-    void Update()
-    {
-        
-    }
-
-    private void CountAllGuns()
-    {
-        for (int y = 0; y < GameManager.Instance.gridSize; y++)
-        {
-            for (int x = 0; x < GameManager.Instance.gridSize; x++)
-            {
-                List<int[]> cellBuildings = GameManager.Instance.islands[x, y];
-                if (cellBuildings != null)
-                {
-                    foreach (var data in cellBuildings)
-                    {
-                        BuildingData building = GameManager.Instance.GetBuildingById(data[0]);
-                        if (building != null && building.type == "gun")
-                        {
-                            GameManager.kolvo_gun += 1;
-                        }
-                    }
-                }
-            }
-        }
-
-        
-
-    }
-
-
     public void shootLogick()
     {
         if (GameManager.Instance.gunArray.Count > GameManager.max_gun)
@@ -50,12 +14,13 @@ public class shoot : MonoBehaviour
         }
 
         Debug.Log("Запуск стрельбы");
-
-        // Отключаем кнопку сразу
         GameManager.Instance.shootButton.interactable = false;
+
+        // Старт задержки повторного выстрела
         GameManager.Instance.StartCoroutine(EnableShootButtonAfterDelay(10f));
 
         int totalDamage = 0;
+        List<GunInstance> gunsToRemove = new List<GunInstance>();
 
         foreach (GunInstance gun in GameManager.Instance.gunArray)
         {
@@ -63,62 +28,81 @@ public class shoot : MonoBehaviour
             int y = gun.position.y;
             int shotDamage = gun.damage;
 
+            // Особенность пушки magic (id == 4): случайный урон от 1 до 5
+            if (gun.id == 4)
+            {
+                shotDamage = Random.Range(1, 6);
+                Debug.Log($"magic пушка: случайный урон {shotDamage}");
+            }
+
+            // Обстрел вправо
             if (gun.direction == 1)
             {
                 for (int tx = x + 1; tx < GameManager.Instance.gridSize; tx++)
                 {
                     Vector2Int pos = new Vector2Int(tx, y);
-                    if (GameManager.Instance.cellEffects.TryGetValue(pos, out string effect))
+                    if (GameManager.Instance.cellEffects.TryGetValue(pos, out string effect) && effect == "power")
                     {
-                        if (effect == "power")
-                        {
-                            shotDamage += 2;
-                            Debug.Log($"Бафф 'power' на {pos.x},{pos.y} +2 урон");
-                        }
+                        shotDamage += 2;
+                        Debug.Log($"Бафф 'power' на {pos.x},{pos.y} +2 урона");
                     }
                 }
 
+                // Применение урона по врагу
                 if (GameManager.Instance.currentEnemyHP > 0)
                 {
                     GameManager.Instance.currentEnemyHP -= shotDamage;
-                    if (GameManager.Instance.currentEnemyHP < 0)
-                        GameManager.Instance.currentEnemyHP = 0;
+                    GameManager.Instance.currentEnemyHP = Mathf.Max(GameManager.Instance.currentEnemyHP, 0);
 
                     GameManager.Instance.UpdateEnemyUI();
-                    Debug.Log($"Пушка на {x},{y} нанесла {shotDamage} урона! Осталось HP: {GameManager.Instance.currentEnemyHP}");
-
                     totalDamage += shotDamage;
+
+                    Debug.Log($"Пушка {gun.id} на ({x}, {y}) нанесла {shotDamage} урона. Осталось HP: {GameManager.Instance.currentEnemyHP}");
+                }
+            }
+
+            // Обработка времени жизни пушки
+            if (gun.lifetime > 0)
+            {
+                gun.lifetime -= 1;
+                Debug.Log($"Пушка {gun.id} на ({x},{y}) - осталось жизни: {gun.lifetime}");
+
+                if (gun.lifetime <= 0)
+                {
+                    gunsToRemove.Add(gun);
+                    Debug.Log($"Пушка {gun.id} на ({x},{y}) самоуничтожена");
                 }
             }
         }
+
+        // Удаляем отработавшие пушки
+        foreach (var gun in gunsToRemove)
+        {
+            GameManager.Instance.gunArray.Remove(gun);
+        }
+
+        // Проверка победы
         if (GameManager.Instance.currentEnemyHP <= 0)
         {
-            GameManager.Instance.shootButton.interactable = false;
-            GameManager.Instance.StartCoroutine(EnableShootButtonAfterDelay(10f));
             ShowMessage("Враг побеждён!");
+            GameManager.Instance.ShowStory();
+            GameManager.Instance.shootButton.interactable = false;
+            Debug.Log("Кнопка стрельбы отключена — враг побеждён");
             GameManager.Instance.EnemyDefeated();
         }
-        else
+        else // Если враг выжил — он наносит ответный удар
         {
             GameManager.Instance.TakeDamageFromEnemy();
-            GameManager.Instance.shootButton.interactable = false;
             GameManager.Instance.StartCoroutine(EnableShootButtonAfterDelay(2f));
-
         }
 
-        // После подсчёта урона:
         if (totalDamage > 0)
         {
-            GameManager.Instance.AddGold(5);
-            ShowMessage($"Вы нанесли {totalDamage} урона за ход и получили 5 монет!");
+            GameManager.Instance.AddGold(15);
+            ShowMessage($"Вы нанесли {totalDamage} урона и получили 15 монет!");
         }
-    }
-
-    private IEnumerator DisableShootButtonTemporarily(float seconds)
-    {
-        GameManager.Instance.shootButton.interactable = false;
-        yield return new WaitForSeconds(seconds);
-        GameManager.Instance.shootButton.interactable = true;
+        // Обрабатываем уменьшение срока жизни зданий после выстрела
+        GameManager.Instance.ProcessBuildingLifetimes();
     }
 
     private IEnumerator EnableShootButtonAfterDelay(float seconds)
@@ -127,29 +111,17 @@ public class shoot : MonoBehaviour
         GameManager.Instance.shootButton.interactable = true;
         Debug.Log("Кнопка стрельбы снова включена");
     }
-    private IEnumerator WaitThenVictory()
-    {
-        yield return new WaitForSeconds(0.6f);
-        GameManager.Instance.StartCoroutine(DisableShootButtonTemporarily(10f));
-        ShowMessage("Враг побеждён!");
-        GameManager.Instance.EnemyDefeated();
-
-    }
-
-
 
     private void ShowMessage(string message)
     {
-            GameManager.Instance.TText.text = message;
-            GameManager.Instance.TText.gameObject.SetActive(true);
-
-            GameManager.Instance.StartCoroutine(HideMessageAfterDelay());
+        GameManager.Instance.TText.text = message;
+        GameManager.Instance.TText.gameObject.SetActive(true);
+        GameManager.Instance.StartCoroutine(HideMessageAfterDelay());
     }
+
     private IEnumerator HideMessageAfterDelay()
     {
         yield return new WaitForSeconds(3f);
         GameManager.Instance.TText.gameObject.SetActive(false);
     }
-
-    
 }
